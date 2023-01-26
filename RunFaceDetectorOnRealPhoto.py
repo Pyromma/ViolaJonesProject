@@ -35,13 +35,10 @@ def getFaceLocations(gray, img):
              for r in range(0,gray.shape[0] - rowssize, step):
                         
                 window = gray[r:r+rowssize, c:c+colssize]
-                colorWindow = img[r:r+rowssize, c:c+colssize]
-                        
-                #imgcp[r:r+rowssize, c:c+colssize] = colorWindow
 
                 window=cv2.resize(window,dsize=(19,19))
 
-                prediction = clf.classify(window, colorWindow)
+                prediction = clf.classify(window)
 
                 img = imgcp.copy()
 
@@ -58,9 +55,9 @@ def getFaceLocations(gray, img):
 
                 
                     
-        colssize+=50
+        colssize+=step
         
-        rowssize+=50
+        rowssize+=step
     
     return locations
     
@@ -83,8 +80,8 @@ if locations:
     print('Face(s) recognized at', locations)
     for location in locations:
         cv2.rectangle(imgtest, (location[0], location[1]), (location[2], location[3]), (255,0,0), 2)
-    cv2.imwrite("result.png",imgtest)
-    cv2.imshow("result.png", imgtest)
+    #cv2.imwrite("result.png",imgtest)
+    cv2.imshow("window", imgtest)
     k = cv2.waitKey(0) # 0==wait forever
 else:
     print('Face not recognized, please change to another photo.')
