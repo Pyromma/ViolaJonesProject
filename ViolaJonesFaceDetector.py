@@ -78,7 +78,7 @@ class Box:
         
         self.height = height
     
-    def compute_feature(self, integralImg):
+    def compute_feature(self, integralImg, colorWindow):
         """
             Computes the value of the Haar's feature given the integral image
         """
@@ -96,6 +96,8 @@ class Box:
             E = (self.y + self.height - 1, self.x - 1)
             F = (self.y + self.height - 1, self.x + self.width - 1)
             result = 2 * integralImg[D[0]][D[1]] + integralImg[A[0]][A[1]] - integralImg[B[0]][B[1]] - 2 * integralImg[C[0]][C[1]] + integralImg[E[0]][E[1]] - integralImg[F[0]][F[1]]
+            cv2.rectangle(colorWindow, (10, 10), (20, 20), (255,255,255), -1)
+            cv2.waitKey(2)
 
         elif self.type == 'twoHorizontal':
             '''
@@ -109,6 +111,8 @@ class Box:
             E = (self.y  + self.height - 1 , self.x + self.width//2 - 1)
             F = (self.y  + self.height - 1 , self.x + self.width - 1)
             result = 2 * integralImg[B[0]][B[1]] + integralImg[F[0]][F[1]] - integralImg[C[0]][C[1]] - 2 * integralImg[E[0]][E[1]] + integralImg[D[0]][D[1]] - integralImg[D[0]][D[1]]
+            cv2.rectangle(colorWindow, (10, 10), (20, 20), (255,255,255), -1)
+            cv2.waitKey(2)
 
         elif self.type == 'threeHorizontal':
             '''
@@ -124,7 +128,9 @@ class Box:
             G = (self.y  + self.height - 1, self.x + self.width//3 * 2 - 1)
             H = (self.y  + self.height - 1, self.x + self.width - 1)
             result = 2 * integralImg[B[0]][B[1]] + 2 * integralImg[G[0]][G[1]] - 2 * integralImg[C[0]][C[1]] - 2 * integralImg[F[0]][F[1]] - integralImg[H[0]][H[1]] - integralImg[A[0]][A[1]] + integralImg[D[0]][D[1]] + integralImg[E[0]][E[1]]
-        
+            cv2.rectangle(colorWindow, (10, 10), (20, 20), (255,255,255), -1)
+            cv2.waitKey(2)
+
         elif self.type == 'threeVerticle':
             '''
             AB
@@ -141,6 +147,8 @@ class Box:
             G = (self.y  + self.height - 1, self.x - 1)
             H = (self.y  + self.height - 1, self.x + self.width - 1)
             result = 2 * integralImg[C[0]][C[1]] + 2 * integralImg[F[0]][F[1]] - 2 * integralImg[D[0]][D[1]] - 2 * integralImg[E[0]][E[1]] - integralImg[H[0]][H[1]] - integralImg[A[0]][A[1]] + integralImg[B[0]][B[1]] + integralImg[G[0]][G[1]]
+            #cv2.rectangle(colorWindow, (10, 10), (20, 20), (255,255,255), -1)
+            #cv2.waitKey(2)
 
         elif self.type == 'four':
             '''
@@ -172,12 +180,12 @@ class Classifier:
         
         self.polarity = polarity
     
-    def classify(self, x):
+    def classify(self, x, colorWindow):
         """
             Classifies an integral image based on a feature f and the classifiers threshold and polarity 
         """
         feature = Box(self.feature[0], self.feature[1], self.feature[2], self.feature[3], self.feature[4])
-        feature_value = feature.compute_feature(x)[1]
+        feature_value = feature.compute_feature(x, colorWindow)[1]
         if self.polarity * feature_value < self.polarity * self.threshold:
             return (1, self.feature, feature_value, self.threshold)
         else:
@@ -533,7 +541,7 @@ class FaceDetector:
                 z[j] = features[j].compute_feature(training_data[i][0])[0]
         return X, y, z
 
-    def classify(self, image):
+    def classify(self, image, colorimage):
         """
             Classifies an image
             Returns 1 if the image has a face and returns 0 otherwise
@@ -544,7 +552,7 @@ class FaceDetector:
         
         for alpha, clf in zip(self.alphas, self.classifiers):
             
-            total += alpha * clf.classify(integralImg)[0]
+            total += alpha * clf.classify(integralImg, colorimage)[0]
             
         return 1 if total >= 0.6 * sum(self.alphas) else 0
 
