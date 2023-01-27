@@ -16,7 +16,7 @@ window_size = 8
 faces_images_count, non_faces_images_count = TrainData()
 # Initial training process
 # Set 2nd argument to 'new' to generate new features, otherwise load saved feature file from 'features.pk;'
-TrainDetector(10, 'load', faces_images_count, non_faces_images_count, window_size)
+TrainDetector(20, 'load', faces_images_count, non_faces_images_count, window_size)
 # Generate test Data
 faces_images_count, non_faces_images_count = TestData()
 # Initial testing process

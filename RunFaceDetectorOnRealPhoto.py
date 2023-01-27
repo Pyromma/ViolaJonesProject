@@ -19,6 +19,7 @@ def getFaceLocations(gray, img):
     print('Start recognition...')
 
     imgcp = img.copy()
+    imgcp2 = img.copy()
     
     colssize = int(gray.shape[1]/5)
     step = int(colssize/4)
@@ -30,26 +31,33 @@ def getFaceLocations(gray, img):
             
     while rowssize<(len(gray)-2):
 
-        for c in range(0,gray.shape[1] - colssize, step):     
-       
-             for r in range(0,gray.shape[0] - rowssize, step):
+        for r in range(0,gray.shape[0] - rowssize, step):    
+            
+            for c in range(0,gray.shape[1] - colssize, step):
                         
                 window = gray[r:r+rowssize, c:c+colssize]
+                windowColor = imgcp2[r:r+rowssize, c:c+colssize]
 
                 window=cv2.resize(window,dsize=(19,19))
+                #windowColor=cv2.resize(windowColor,dsize=(19,19))
 
                 prediction = clf.classify(window)
 
                 img = imgcp.copy()
-
                 
-                cv2.rectangle(img, (r, c), (r+rowssize, c+colssize), (0,0,255), 2)
+
+                for i in clf.alphas:
+                    top_index = clf.alphas.index(i)
+                    clf.getBoxImageShow(clf.infos[top_index][0], len(clf.classifiers), windowColor, int(colssize/19), img, c, r, colssize, rowssize)
+
+                    cv2.rectangle(img, (c-1, r-1), (c+colssize+1, r+rowssize+1), (0,0,255), 2)
+
                 cv2.imshow("window", img)
                 #cv2.imshow("w2", window)
                 cv2.waitKey(1)
                         
                 if prediction == 1:
-                    cv2.rectangle(imgcp, (r, c), (r+rowssize, c+colssize), (0,255,0), 1)
+                    cv2.rectangle(imgcp, (c, r), (c+colssize ,r+rowssize), (0,255,0), 1)
                     locations.append([r,c,r+rowssize,c+colssize])
                 
 

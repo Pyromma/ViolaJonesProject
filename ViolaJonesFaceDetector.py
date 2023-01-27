@@ -16,6 +16,7 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 
+#haar = np.zeros((19,19,3), np.uint8)
 
 def getIntegralImage(img):
     """
@@ -56,7 +57,12 @@ def getImage(filepath):
     """ 
         Function to Retreive the names of Img files with Extension .png from the desired Folder
     """
-    image = cv2.imread(filepath)
+
+    if os.path.isfile(filepath):
+        image = cv2.imread(filepath)
+    else:
+        image = np.zeros((19,19,3), np.uint8)
+
     image = cv2.cvtColor(image,cv2.COLOR_RGB2GRAY)
     return image
 
@@ -185,7 +191,7 @@ class Classifier:
     
 
 class FaceDetector:
-    def __init__(self, NoOfAdaboost = 20):
+    def __init__(self, NoOfAdaboost = 40):
         """
             Initializes the Face Detector with NoOfAdaboost (round of Adaboost)
         
@@ -248,6 +254,65 @@ class FaceDetector:
         str2 = 'Feature: ' + feature + ' at ( ' + str(x) + ',' + str(y) + ' ) width: ' + str(w) + ' height: ' +  str(h)
         plt.title(str2)
         plt.show()  # display it
+
+    def getBoxImageShow(self, best_feature, round, window, colsSize, imageO, r, c, rmax, cmax):
+        
+        s = colsSize
+
+        time = 1
+
+        feature = best_feature[0]
+        x = best_feature[1]*s - 1
+        y = best_feature[2]*s - 1
+        w = best_feature[3]*s
+        h = best_feature[4]*s
+        image = window.copy()
+
+        if feature == 'twoVerticle':
+            cv2.rectangle(image, (x, y), (x + w, y + h//2), (255,255,255), -1)
+            cv2.rectangle(image, (x, y + h//2), (x + w, y + h), (0,0,0), -1)
+            imageO[c:c+cmax, r:r+rmax] = image
+            cv2.imshow("window", imageO)
+            cv2.waitKey(time)
+            image = window.copy()
+
+        elif feature == 'twoHorizontal':
+            cv2.rectangle(image, (x, y), (x + w//2, y + h), (255,255,255), -1)
+            cv2.rectangle(image, (x + w//2, y), (x + w, y + h), (0,0,0), -1)
+            imageO[c:c+cmax, r:r+rmax] = image
+            cv2.imshow("window", imageO)
+            cv2.waitKey(time)
+            image = window.copy()
+        
+        elif feature == 'threeHorizontal':
+            cv2.rectangle(image, (x, y), (x + w//3, y + h), (255,255,255), -1)
+            cv2.rectangle(image, (x + w//3, y), (x + w//3 * 2, y + h), (0,0,0), -1)
+            cv2.rectangle(image, (x + w//3 * 2, y), (x + w, y + h), (255,255,255), -1)
+            imageO[c:c+cmax, r:r+rmax] = image
+            cv2.imshow("window", imageO)
+            cv2.waitKey(time)
+            image = window.copy()
+
+        elif feature == 'threeVerticle':
+            cv2.rectangle(image, (x, y), (x + w, y + h//3), (255,255,255), -1)
+            cv2.rectangle(image, (x, y + h//3), (x + w, y + h//3 * 2), (0,0,0), -1)
+            cv2.rectangle(image, (x, y + h//3 * 2), (x + w, y + h), (255,255,255), -1)
+            imageO[c:c+cmax, r:r+rmax] = image
+            cv2.imshow("window", imageO)
+            cv2.waitKey(time)
+            image = window.copy()
+
+        elif feature == 'four':
+            cv2.rectangle(image, (x, y), (x + w//2, y + h//2), (255,255,255), -1)
+            cv2.rectangle(image, (x, y + h//2), (x + w//2, y + h), (0,0,0), -1)
+            cv2.rectangle(image, (x + w//2, y), (x + w, y + h//2), (0,0,0), -1)
+            cv2.rectangle(image, (x + w//2, y + h//2), (x + w, y + h), (255,255,255), -1)
+            imageO[c:c+cmax, r:r+rmax] = image
+            cv2.imshow("window", imageO)
+            cv2.waitKey(time)
+            image = window.copy()
+
+
         
     def Train(self, Training, generate_features, NoOfFaces, NoOfNonFaces, window_size):
         """
